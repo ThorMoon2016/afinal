@@ -430,6 +430,8 @@ $.ajax({
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const subtotalElement = document.getElementById('subtotal');
+    const totalWithDeliveryElement = document.getElementById('totalWithDelivery');
 
     function renderCartItems() {
         cartItemsContainer.innerHTML = '';
@@ -438,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         proizvodiUKorpi.forEach((productInfo, index) => {
             const productDiv = document.createElement('div');
             productDiv.classList.add('cart-item');
-            productDiv.style.marginBottom = '-105px'; // Promijenjena visina margine između proizvoda
+            productDiv.style.marginBottom = '-105px';
 
             const removeButton = document.createElement('button');
             removeButton.innerHTML = 'X';
@@ -446,11 +448,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             removeButton.addEventListener('click', function() {
                 const index = proizvodiUKorpi.findIndex(product => product.id === productInfo.id);
-                
                 if (index !== -1) {
                     proizvodiUKorpi.splice(index, 1);
                     localStorage.setItem('proizvodiUKorpi', JSON.stringify(proizvodiUKorpi));
-                    renderCartItems(); // Ovdje pozivamo ponovno renderiranje proizvoda u korpi
+                    renderCartItems();
+                    calculateTotal();
                 }
             });
 
@@ -460,21 +462,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="details-right">
                         <div class="details-text">
                             <p class="cart-item-name">${productInfo.naziv} (${productInfo.količina} KG)</p>
-
-                            <p class="cart-item-price" style="color: red;">${productInfo.cijena}</p>
+                            <p class="cart-item-price" style="color: red;">${productInfo.ukupnaCijena} KM</p>
                         <div class="remove-button-container">
-                            <!-- Ovdje dodajemo dugme za uklanjanje -->
                         </div>
                     </div>
                 </div>
             `;
 
-            // Dodajemo dugme za uklanjanje u odgovarajući kontejner
             productDiv.querySelector('.remove-button-container').appendChild(removeButton);
-
             cartItemsContainer.appendChild(productDiv);
 
-            // Dodavanje <hr> kao razdjelnika nakon svakog proizvoda, osim posljednjeg
             if (index !== proizvodiUKorpi.length - 1) {
                 const hrElement = document.createElement('hr');
                 hrElement.style.border = '1px solid rgb(212, 212, 212)';
@@ -484,8 +481,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function calculateTotal() {
+        let proizvodiUKorpi = JSON.parse(localStorage.getItem('proizvodiUKorpi')) || [];
+        let subtotal = 0;
+
+        proizvodiUKorpi.forEach(productInfo => {
+            subtotal += parseFloat(productInfo.ukupnaCijena);
+        });
+
+        subtotalElement.textContent = `${subtotal.toFixed(2)} KM`;
+        totalWithDeliveryElement.textContent = `${subtotal.toFixed(2)} KM`;
+    }
+
     renderCartItems();
+    calculateTotal();
 });
+
 
 
 
